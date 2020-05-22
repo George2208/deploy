@@ -8,6 +8,7 @@ const app = express()
 app.use(express.static(path.join(__dirname, "Public")))
 app.use(bodyParser.json())
 
+let port = process.env.PORT || 3000
 let users = []
 let comments = []
 let admin
@@ -231,4 +232,4 @@ app.get("*", (req, res) => {
     res.status(404).sendFile(__dirname+"/Public/html/404.html")
 });
 
-app.listen(3000)
+app.listen(port)
