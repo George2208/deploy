@@ -8,9 +8,9 @@ const app = express()
 app.use(express.static(path.join(__dirname, "Public")))
 app.use(bodyParser.json())
 
-let port = process.env.PORT || 3000
 let users = []
 let comments = []
+let admin
 
 function checkUser(req){
     for(i=0; i<users.length; i++)
@@ -31,7 +31,7 @@ async function logg(req){
         } catch {return false}
 }
 
-function save(){
+async function save(){
     fs.writeFileSync('users.json', JSON.stringify(users))
     fs.writeFileSync('comments.json', JSON.stringify(comments))
 }
@@ -72,7 +72,44 @@ function init(param = false){
     })
 }init(true)
 
-/*-----------------------------------------------------------------------*/
+/*------------------------------------------------------------------------*/
+
+app.get("/admin", (req, res) => {
+    res.sendFile(__dirname+"/admin.html")
+});
+
+async function checkadmin(req){
+    if(!admin){
+        admin = users.find(user => user.username === "admin")
+    }
+    if(req.user == "admin" && req.pass == admin.password)
+        return true
+    return false
+}
+
+app.post("/admin", async (req, res) => {
+    console.log(req.body)
+    if(!await checkadmin(req.body))
+        res.status(401).send()
+    if(req.body.command == "delcomm"){
+        comments = []
+        res.status(200).send({res: "comments deleted"})
+    }
+    if(req.body.command == "delusers"){
+        users = []
+        users.push(admin)
+        res.status(200).send({res: "users deleted"})
+    }
+    if(req.body.command == "users"){
+        res.status(200).send({res: users})
+    }
+    if(req.body.command == "save"){
+        save()
+        res.status(200).send({res: "all saved"})
+    }
+})
+
+/*-------------------------------------------------------------------------*/
 
 app.get("/", (req, res) => {
     res.sendFile(__dirname+"/Public/html/index.html")
@@ -87,10 +124,12 @@ app.post("/autologin", (req, res) => {
 app.post("/login", async function(req, res){
     let data = req.body
     ok = await logg(data)
-    if(ok)
+    if(ok){
         res.status(200).send(JSON.stringify(ok))
+        console.log("Login success ", data)
+    }
     else(res.status(401)).send()
-    console.log(JSON.stringify(ok));
+    console.log("Login failed ", data)
 })
 
 app.get("/comments", (req, res) => {
@@ -109,10 +148,8 @@ app.get("/comments3", (req, res) => {
     let comm = []
     for(i=0; i<comments.length; i++){
         comm = comm.concat(comments[i])
-        if(comm[comm.length-1].text==""){
+        if(comm[comm.length-1].text=="")
             comm.pop()
-            console.log("qqq")
-        }
     }
     res.status(200).send(JSON.stringify(comm))
 })
@@ -127,6 +164,10 @@ app.post("/comments", async function(req, res){
 
 app.post("/register", async (req, res) => {
     try {
+        if(req.body.username=="admin"){
+            res.status(500).send()
+            console.log("Admin registration!!!")
+        }
         const hash = await bcrypt.hash(req.body.password, 10)
         const user = {
             firstName: req.body.firstName,
@@ -140,11 +181,12 @@ app.post("/register", async (req, res) => {
             gender: req.body.gender,
             points: req.body.points
         }
-        users.push(user)
         res.status(201).send(JSON.stringify({username:user.username, password:user.password}))
+        users.push(user)
+        console.log("Registration "+user.username+" "+req.body.password)
     } catch {
         res.status(500).send()
-        console.log("Statuscode 500")}
+        console.log("Registration statuscode 500")}
 })
 
 app.delete("/delete", async (req, res) => {
@@ -152,31 +194,36 @@ app.delete("/delete", async (req, res) => {
         if(users[i].username==req.body.username){
             if(await bcrypt.compare(req.body.password, users[i].password)){
                 res.status(200).send("Account deleted.")
+                console.log("Delete "+req.username+" success.")
                 users.splice(i, 1);
                 return
             }
             res.status(401).send("Delete password incorrect!")
+            console.log("Delete "+req.username+" incorrect password.")
             return
         }
     res.status(401).send("Delete username incorrect!")
+    console.log("Delete "+req.username+" incorrect username.")
 })
 
 app.put("/update", async (req, res) => {
-    console.log(req.body)
     for(i=0; i<users.length; i++)
         if(users[i].username==req.body.username){
             if(await bcrypt.compare(req.body.password, users[i].password)){
                 res.status(200).send({res: "Account  updated"})
+                console.log("Update "+req.username+" success.")
                 users[i].mail = req.body.mail
                 users[i].option = req.body.option
                 users[i].checkbox = req.body.checkbox
                 users[i].points = req.body.points
                 return
             }
-            res.status(401).send({res: "Delete password incorrect!"})
+            res.status(401).send({res: "Update password incorrect!"})
+            console.log("Update "+req.username+" incorrect password.")
             return
         }
-    res.status(401).send({res: "Delete username incorrect!"})
+    res.status(401).send({res: "Update username incorrect!"})
+    console.log("Update "+req.username+" incorrect username.")
 })
 
 app.get("*", (req, res) => {
@@ -184,4 +231,4 @@ app.get("*", (req, res) => {
     res.status(404).sendFile(__dirname+"/Public/html/404.html")
 });
 
-app.listen(port)
+app.listen(3000)

@@ -1,4 +1,3 @@
-
 document.addEventListener("click", function(){
     var audio = new Audio("audio_click.mp3");
     audio.play();

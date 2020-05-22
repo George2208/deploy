@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin</title>
+    <script defer>
+        async function admin(){
+            const req = {
+                user: localStorage.getItem("username"),
+                pass: localStorage.getItem("password"),
+                command: document.getElementById("command").value
+            }
+            const res = await fetch("/admin",{
+                method: "POST",
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(req)
+            })
+            if(res.status!=200)
+                window.location.href = "html/index.html"
+            let x = await res.json()
+            console.log(x.res)
+        }
+    </script>
+</head>
+<body>
+    <a href="/">Site</a>
+    <input id="command" type="text" onload="admin()">
+    <button onclick="admin()">OK</button>
+</body>
+</html>
