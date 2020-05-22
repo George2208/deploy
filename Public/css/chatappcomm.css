@@ -1,0 +1,16 @@
+#container {
+    background-color: darkgrey;
+    padding: 50px;
+}
+
+form {
+    padding: 20px;
+}
+
+.div {
+    padding: 10px;
+}
+
+.div:nth-child(even){
+    background-color: lightgrey;
+}
