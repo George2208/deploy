@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin</title>
+</head>
+<body>
+    <a href="/">Site</a>
+    <input id="command" type="text">
+    <button onclick="admin()">OK</button>
     <script defer>
         async function admin(){
             const req = {
@@ -20,12 +25,14 @@
                 window.location.href = "html/index.html"
             let x = await res.json()
             console.log(x.res)
-        }
+        }admin()
+        document.getElementById("command").addEventListener("keydown",function(e){
+            if(e.key == "Enter"){
+                e.preventDefault()
+                admin()
+                document.getElementById("command").value=""
+            }
+        })
     </script>
-</head>
-<body>
-    <a href="/">Site</a>
-    <input id="command" type="text" onload="admin()">
-    <button onclick="admin()">OK</button>
 </body>
 </html>

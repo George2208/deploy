@@ -24,13 +24,12 @@ document.getElementById("form").addEventListener("submit", async function(e){
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(obj)
     })
-    console.log(res.status);
-    
+    x = await res.json()
     if(res.status == 200){
-        alert("Account deleted :(")
+        alert(x.res)
         localStorage.clear()
         window.location.href = "index.html";
         return
     }
-    alert("Something went wrong")
+    alert(x.res)
 })

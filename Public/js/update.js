@@ -1,8 +1,3 @@
-document.addEventListener("click", function(){
-    var audio = new Audio("audio_click.mp3");
-    audio.play();
-})
-
 function darkMode() {
 	document.body.classList.toggle("dark-mode");
 	if(document.body.classList.contains("dark-mode"))

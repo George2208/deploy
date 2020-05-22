@@ -129,7 +129,7 @@ app.post("/login", async function(req, res){
         res.status(200).send(JSON.stringify(ok))
         console.log("Login success ", data)
     }
-    else(res.status(401)).send()
+    else(res.status(401)).send({res:"Incorrect username or password."})
     console.log("Login failed ", data)
 })
 
@@ -165,9 +165,10 @@ app.post("/comments", async function(req, res){
 
 app.post("/register", async (req, res) => {
     try {
-        if(req.body.username=="admin"){
-            res.status(500).send()
-            console.log("Admin registration!!!")
+        const temp = users.find(user => user.username === req.body.username)
+        if(temp){
+            res.status(500).send({res: "Username already exists."})
+            return
         }
         const hash = await bcrypt.hash(req.body.password, 10)
         const user = {
@@ -182,11 +183,11 @@ app.post("/register", async (req, res) => {
             gender: req.body.gender,
             points: req.body.points
         }
-        res.status(201).send(JSON.stringify({username:user.username, password:user.password}))
+        res.status(201).send(JSON.stringify({res: "Account created :)", username:user.username, password:user.password}))
         users.push(user)
         console.log("Registration "+user.username+" "+req.body.password)
     } catch {
-        res.status(500).send()
+        res.status(500).send("Something went wrong...")
         console.log("Registration statuscode 500")}
 })
 
@@ -194,17 +195,17 @@ app.delete("/delete", async (req, res) => {
     for(i=0; i<users.length; i++)
         if(users[i].username==req.body.username){
             if(await bcrypt.compare(req.body.password, users[i].password)){
-                res.status(200).send("Account deleted.")
-                console.log("Delete "+req.username+" success.")
+                res.status(200).send({res: "Account deleted."})
+                console.log("Delete "+req.body.username+" success.")
                 users.splice(i, 1);
                 return
             }
-            res.status(401).send("Delete password incorrect!")
-            console.log("Delete "+req.username+" incorrect password.")
+            res.status(401).send({res: "Delete password incorrect!"})
+            console.log("Delete "+req.body.username+" incorrect password.")
             return
         }
-    res.status(401).send("Delete username incorrect!")
-    console.log("Delete "+req.username+" incorrect username.")
+    res.status(401).send({res: "Delete username incorrect!"})
+    console.log("Delete "+req.body.username+" incorrect username.")
 })
 
 app.put("/update", async (req, res) => {
@@ -232,4 +233,4 @@ app.get("*", (req, res) => {
     res.status(404).sendFile(__dirname+"/Public/html/404.html")
 });
 
-app.listen(port)
+app.listen(port)    

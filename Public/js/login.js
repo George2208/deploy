@@ -1,4 +1,4 @@
-async function clog(){
+async function autologin(){
   	const req = {
 		user: localStorage.getItem("username"),
 		pass: localStorage.getItem("password")
@@ -11,7 +11,7 @@ async function clog(){
 	if(res.status==200)
 		console.log("Logged in as "+req.user)
 	else console.log("Not logged")
-}clog()
+}autologin()
 
 document.getElementById("loginform").addEventListener("submit", async function(e){
     e.preventDefault()
@@ -29,9 +29,7 @@ document.getElementById("loginform").addEventListener("submit", async function(e
         console.log("status 200")
         ress = await res.json()
         localStorage.setItem("username", ress.user);
-        localStorage.setItem("password", ress.pass);
-
-
+        localStorage.setItem("password", ress.pass);	
         document.getElementById("loginwindow").style.display = "none";
         const Toast = Swal.mixin({
             toast: true,
@@ -43,11 +41,13 @@ document.getElementById("loginform").addEventListener("submit", async function(e
               toast.addEventListener('mouseenter', Swal.stopTimer)
               toast.addEventListener('mouseleave', Swal.resumeTimer)
             }
-          })
-          Toast.fire({
-            icon: 'success',
-            title: 'Signed in successfully as '+ress.fname+" "+ress.lname
-          })
-    }
-    else alert(res.status)
+          	})
+          	Toast.fire({
+            	icon: 'success',
+            	title: 'Signed in successfully as '+ress.fname+" "+ress.lname
+			  })
+		return
+	}
+	let x = await res.json()
+    alert(x.res)
 })

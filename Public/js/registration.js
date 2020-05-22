@@ -36,16 +36,20 @@ document.getElementById("form").addEventListener("submit", async function(e){
         gender: radio,
         points: document.getElementById("points").value
     }
+    if(!await confirm(obj))
+        return
     const res = await fetch("/register", {
         method: "POST",
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(obj)
     })
+    if(res.status == 201){
+        localStorage.setItem("username", ress.username);
+        localStorage.setItem("password", ress.password);
+        window.location.href = "index.html";
+    }
     ress = await res.json()
-    localStorage.setItem("username", ress.username);
-    localStorage.setItem("password", ress.password);
-    alert("Account created ;)")
-    window.location.href = "index.html";
+    alert(ress.res)
 })
 
 async function listeners(){
@@ -104,20 +108,22 @@ async function listeners(){
     cpassword.addEventListener("input", function(){check()})
 }listeners()
 
-function did()
-{
-    swal({
-        title : "Are you sure about these informations?",
-        text : "If you want to modify one of them, tap the cancel button",
-        icon : "warning",
-        buttons : true,
+async function confirm(obj){
+    result = await Swal.fire({
+        title: 'Are you sure?',
+        icon: 'info',
+        confirmButtonText: 'Submit!',
+        reverseButtons: true,
+        cancelButtonText: 'Cancel!',
+        showCancelButton: true,
+        html: "First name: "+ obj.firstName+"<br>Last name: "+obj.lastName+"<br>Username: "+obj.username+"<br>Email: "+obj.mail+"<br>Gender: "+obj.gender
     })
-    .then((answer)=>
-    {
-        if(answer)
-        {
-            const val = ['NAME : ' +`sdfadffasfasdfasfad`, 'SURNAME : ' + "vect[1]"];
-            swal('YOUR INFORMATIONS',val.join('\n\n'),'info');
-        }
-    })
+    if (result.value){
+        await Swal.fire({
+            icon: 'success',
+            title: 'Form submitted',
+        })
+        return true
+    }
+    return false
 }
