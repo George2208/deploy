@@ -25,11 +25,12 @@ document.getElementById("loginform").addEventListener("submit", async function(e
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(obj)
     })
+	let ress = await res.json()
     if(res.status==200){
-        console.log("status 200")
-        ress = await res.json()
+        let audio = new Audio("audio_login.mp3");
+        audio.play();
         localStorage.setItem("username", ress.user);
-        localStorage.setItem("password", ress.pass);	
+        localStorage.setItem("password", ress.pass);
         document.getElementById("loginwindow").style.display = "none";
         const Toast = Swal.mixin({
             toast: true,
@@ -48,6 +49,5 @@ document.getElementById("loginform").addEventListener("submit", async function(e
 			  })
 		return
 	}
-	let x = await res.json()
-    alert(x.res)
+    alert(ress.res)
 })

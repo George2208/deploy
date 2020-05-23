@@ -69,7 +69,6 @@ function init(param = false){
                 console.log(comments)}
         catch(err) {
             console.log("Warning: No comments found!")}
-        console.log(comments)
     })
 }init(true)
 
@@ -128,8 +127,9 @@ app.post("/login", async function(req, res){
     if(ok){
         res.status(200).send(JSON.stringify(ok))
         console.log("Login success ", data)
+        return
     }
-    else(res.status(401)).send({res:"Incorrect username or password."})
+    res.status(401).send({res:"Incorrect username or password."})
     console.log("Login failed ", data)
 })
 

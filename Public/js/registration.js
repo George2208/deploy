@@ -43,12 +43,12 @@ document.getElementById("form").addEventListener("submit", async function(e){
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(obj)
     })
+    ress = await res.json()
     if(res.status == 201){
         localStorage.setItem("username", ress.username);
         localStorage.setItem("password", ress.password);
         window.location.href = "index.html";
     }
-    ress = await res.json()
     alert(ress.res)
 })
 
